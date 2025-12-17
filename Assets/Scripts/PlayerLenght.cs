@@ -25,7 +25,7 @@ public class PlayerLenght : NetworkBehaviour
 
     //Esto se llamara por el servidor
     [ContextMenu("Add Length")]
-    private void AddLength()
+    public void AddLength()
     {
         length.Value += 1;
         InstantiateTail();
