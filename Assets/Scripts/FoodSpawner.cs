@@ -6,6 +6,8 @@ public class FoodSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject prefab;
 
+    private const int MaxPrefabCount = 50;
+
     void Start()
     {
         NetworkManager.Singleton.OnServerStarted += SpawnFoodStart;
@@ -14,11 +16,12 @@ public class FoodSpawner : MonoBehaviour
     private void SpawnFoodStart()
     {
         NetworkManager.Singleton.OnServerStarted -= SpawnFoodStart;
-        //NetworkObjectPool.Singleton.InitializePool();
+        NetworkObjectPool.Singleton.InitializePool();
         for (int i = 0; i < 30; i++)
         {
             SpawnFood();
         }
+
         StartCoroutine(SpawnOverTime());
     }
 
@@ -26,11 +29,15 @@ public class FoodSpawner : MonoBehaviour
     {
         NetworkObject obj = NetworkObjectPool.Singleton.GetNetworkObject(prefab, GetRandomPositionOnMap(), Quaternion.identity);
         obj.GetComponent<Food>().prefab = prefab;
-        obj.Spawn(true);
+
+        if (!obj.IsSpawned)
+        {
+          obj.Spawn(true);
+        }
     }
     private Vector3 GetRandomPositionOnMap()
     {
-        return new  Vector3 (Random.Range(-17f,17f),Random.Range(-9,9),0f);
+        return new  Vector3 (Random.Range(-9f,9f),Random.Range(-5,5),0f);
     }
 
     private IEnumerator SpawnOverTime()
@@ -38,7 +45,11 @@ public class FoodSpawner : MonoBehaviour
         while (NetworkManager.Singleton.ConnectedClients.Count > 0)
         {
             yield return new WaitForSeconds(2f);
-            SpawnFood();
+
+            if (NetworkObjectPool.Singleton.GetCurrentPrefabCount(prefab) < MaxPrefabCount) 
+            {
+                SpawnFood();
+            }
         }
     }
 }

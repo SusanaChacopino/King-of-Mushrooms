@@ -4,6 +4,7 @@ using UnityEngine;
 public class Food : NetworkBehaviour
 {
     public GameObject prefab;
+
     private void OnTriggerEnter2D(Collider2D col)
     {
         if (!col.CompareTag("Player")) return;
@@ -19,6 +20,6 @@ public class Food : NetworkBehaviour
             tail.networkedOwner.GetComponent<PlayerLenght>().AddLength();
         }
         NetworkObjectPool.Singleton.ReturnNetworkObject(NetworkObject, prefab);
-        //NetworkObject.Despawn();
+        NetworkObject.Despawn();
     }
 }
